@@ -68,8 +68,29 @@ def read_file(filename):
 def avg_usage(license_dict):
     avg_usage = defaultdict(float)
     for key, values in license_dict.items():
-        if values:
-            avg_usage[key] = sum(values) / len(values)
+        if not values:
+            avg_usage[key] = 0.0
+            continue
+
+        # Sort the values to trim extremes
+        sorted_values = sorted(values)
+        n = len(sorted_values)
+
+        # Calculate average of the trim from both ends (15%)
+        k = int(0.15 * n)
+
+        # Trim the data (exclude first k and last k elements)
+        trimmed_values = sorted_values[k : n - k]
+
+        # Calculate average fo the trimmed data (handle edge cases)
+        if not trimmed_values:
+            # Fallback: if all data is trimmed, use original data
+            avg = sum(sorted_values) / n
+        else:
+            avg = sum(trimmed_values) / len(trimmed_values)
+
+        avg_usage[key] = avg
+
     return avg_usage
 
 if __name__ == "__main__":
@@ -86,4 +107,13 @@ if __name__ == "__main__":
     print("\nUnique Users per License:")
     for software, users in unique_users.items():
         print(f"{software}: {len(users)} unique users")
+
+
+# trim by 15%
+# user entered timeslot
+# effective utilization by each user - who are the heaviest users of license. license utilization by the time by each user on each license
+# to be done later
+# denial log - licenses need to be issued/ de-issued based on the number of denials unique users face
+# line graph for effective utilization
+# utilization by type, total, user filteration 
                 
